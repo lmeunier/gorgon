@@ -98,11 +98,11 @@ func LoadPrivateKey(filename string) (*PrivateKey, error) {
 	return &PrivateKey{key}, nil
 }
 
-func CreateCertificate(private_key *PrivateKey, public_key *PublicKey, email string, cert_duration int, pubkey map[string]string) ([]byte, error) {
+func CreateCertificate(private_key *PrivateKey, public_key *PublicKey, email string, cert_duration int, pubkey map[string]string, iss string) ([]byte, error) {
 	token := jwt.New(jwt.GetSigningMethod("RS256"))
 	token.Claims["iat"] = time.Now().Add(-time.Duration(10)*time.Second).Unix() * 1000
 	token.Claims["exp"] = time.Now().Add(time.Duration(cert_duration)*time.Second).Unix() * 1000
-	token.Claims["iss"] = "dev-idp.deltalima.net"
+	token.Claims["iss"] = iss
 	token.Claims["public-key"] = pubkey
 	token.Claims["principal"] = map[string]string{"email": email}
 

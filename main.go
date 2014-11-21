@@ -10,7 +10,7 @@ const (
 )
 
 func main() {
-	app := app.NewApp()
+	app := app.NewApp("gorgon.ini")
 	http.Handle("/", app.Router)
 	http.ListenAndServe(ADDRESS, nil)
 }

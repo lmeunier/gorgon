@@ -3,12 +3,11 @@ package app
 import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/vaughan0/go-ini"
 	"html/template"
 	"log"
 	"strings"
 )
-
-// sessions.NewCookieStore([]byte("blabla"))
 
 type SupportDocument struct {
 	Authentication string     `json:"authentication""`
@@ -17,21 +16,30 @@ type SupportDocument struct {
 }
 
 type GorgonApp struct {
+	Config          ini.File
 	Router          *mux.Router
 	sessionStore    *sessions.CookieStore
 	supportDocument SupportDocument
 	publicKey       *PublicKey
 	privateKey      *PrivateKey
 	templates       *template.Template
+	domain          string
 }
 
-func NewApp() GorgonApp {
-	public_key, err := LoadPublicKey("TODO-public-key.pem")
+func NewApp(config_file string) GorgonApp {
+	config, err := ini.LoadFile(config_file)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	private_key, err := LoadPrivateKey("TODO-private-key.pem")
+	public_key_filename, _ := config.Get("global", "public_key")
+	public_key, err := LoadPublicKey(public_key_filename)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	private_key_filename, _ := config.Get("global", "private_key")
+	private_key, err := LoadPrivateKey(private_key_filename)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -53,13 +61,17 @@ func NewApp() GorgonApp {
 		}
 	}
 
+	domain, _ := config.Get("global", "idp_domain")
+
 	app := GorgonApp{
+		config,
 		mux.NewRouter(),
 		sessions.NewCookieStore([]byte("TODO")),
 		support_document,
 		public_key,
 		private_key,
 		templates,
+		domain,
 	}
 
 	app.Router.Handle("/.well-known/browserid", gorgonHandler{app, SupportDocumentHandler})

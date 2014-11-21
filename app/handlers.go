@@ -90,7 +90,7 @@ func GenerateCertificateHandler(app GorgonApp, w http.ResponseWriter, r *http.Re
 	public_key := app.publicKey
 
 	// TODO vérifier la public_key
-	certificate, err := CreateCertificate(private_key, public_key, email, cert_duration, pubkey)
+	certificate, err := CreateCertificate(private_key, public_key, email, cert_duration, pubkey, app.domain)
 	if err != nil {
 		log.Panic(err)
 	}
