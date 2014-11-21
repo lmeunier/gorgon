@@ -1,0 +1,28 @@
+<html>
+<head>
+</head>
+<body>
+<script src="https://login.persona.org/authentication_api.js"></script>
+{{if .Session.Values.authenticated_as}}
+  <script type="text/javascript">
+    navigator.id.beginAuthentication(function(email) {
+      navigator.id.completeAuthentication();
+    });
+  </script>
+{{else}}
+  {{if .ValidationError}}{{.ValidationError}}{{end}}
+  <form method="POST">
+    <input type="text" name="email" placeholder="email" value="{{.Email}}">
+    <input type="password" name="password" placeholder="password">
+    <button id="btn_cancel" type="button">Cancel</button>
+    <button id="btn_submit" type="submit">Authenticate</button>
+  </form>
+{{end}}
+<script type="text/javascript">
+var btn_cancel = document.getElementById('btn_cancel');
+btn_cancel.click = function() {
+  navigator.id.raiseAuthenticationFailure('user clicked cancel');
+};
+</script>
+</body>
+</html>

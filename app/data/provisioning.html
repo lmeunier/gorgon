@@ -1,0 +1,40 @@
+<html>
+<head>
+</head>
+<body>
+<script src="https://login.persona.org/provisioning_api.js"></script>
+{{if .Session.Values.authenticated_as}}
+  <script type="text/javascript">
+    function generate_server_side(email, public_key, cert_duration, callback) {
+      var req = new XMLHttpRequest();
+      var params = "email="+encodeURIComponent(email)+"&public_key="+encodeURIComponent(public_key)+"&cert_duration="+encodeURIComponent(cert_duration);
+      req.open('GET', '/browserid/generate_certificate.html?' + params);
+      req.onreadystatechange = function(evt) {
+        if(req.readyState == 4) {
+          if(req.status == 200) {
+            callback(req.responseText);
+          }
+        }
+      };
+      req.send(null);
+    };
+    navigator.id.beginProvisioning(function(email, cert_duration) {
+        navigator.id.genKeyPair(function(public_key) {
+          generate_server_side(email, public_key, cert_duration, function (certificate) {
+            // generateServerSide something you would write.
+            // In this example, imagine it does an AJAX request to create a certificate,
+            // and then invokes a callback with that certificate.
+            navigator.id.registerCertificate(certificate);
+          });
+      });
+    });
+  </script>
+{{else}}
+  <script type="text/javascript">
+    navigator.id.beginProvisioning(function(email, cert_duration) {
+        navigator.id.raiseProvisioningFailure('user is not authenticated as target user');
+    });
+  </script>
+{{end}}
+</body>
+</html>
