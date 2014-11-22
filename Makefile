@@ -6,5 +6,5 @@ install_deps:
 	go get -u github.com/dgrijalva/jwt-go
 	go get -u github.com/gorilla/mux
 	go get -u github.com/gorilla/sessions
-	go get -u github.com/jteeuwen/go-bindata
+	go get -u github.com/jteeuwen/go-bindata/...
 	go get -u github.com/vaughan0/go-ini
