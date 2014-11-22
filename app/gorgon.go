@@ -24,6 +24,7 @@ type GorgonApp struct {
 	privateKey      *PrivateKey
 	templates       *template.Template
 	domain          string
+	Authenticator   Authenticator
 }
 
 func NewApp(config_file string) GorgonApp {
@@ -72,7 +73,15 @@ func NewApp(config_file string) GorgonApp {
 		private_key,
 		templates,
 		domain,
+		nil,
 	}
+
+	authenticator_name, _ := config.Get("global", "auth")
+	authenticator, err := NewAuthenticator(app, authenticator_name)
+	if err != nil {
+		log.Panic(err)
+	}
+	app.Authenticator = authenticator
 
 	app.Router.Handle("/.well-known/browserid", gorgonHandler{app, SupportDocumentHandler})
 	app.Router.Handle("/browserid/authentication.html", gorgonHandler{app, AuthenticationHandler})

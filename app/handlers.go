@@ -33,11 +33,14 @@ func AuthenticationHandler(app GorgonApp, w http.ResponseWriter, r *http.Request
 	session, _ := app.sessionStore.Get(r, "persona-auth")
 
 	if r.Method == "POST" {
-		ctx["Email"] = r.FormValue("email")
+		username := r.FormValue("email")
 		password := r.FormValue("password")
 
-		if password == "verysecret" {
-			session.Values["authenticated_as"] = ctx["Email"]
+		ctx["Email"] = username
+
+		err := app.Authenticator.Authenticate(username, password)
+		if err == nil {
+			session.Values["authenticated_as"] = username
 		} else {
 			delete(session.Values, "authenticated_as")
 			ctx["ValidationError"] = "Authentication failure"
