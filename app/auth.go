@@ -2,12 +2,15 @@ package app
 
 import (
 	"errors"
+	"github.com/mxk/go-imap/imap"
 	"reflect"
+	"time"
 )
 
 var (
 	Authenticators = map[string]reflect.Value{
 		"test": reflect.ValueOf(NewTestAuthenticator),
+		"imap": reflect.ValueOf(NewImapAuthenticator),
 	}
 )
 
@@ -49,5 +52,43 @@ func NewTestAuthenticator(app GorgonApp) (Authenticator, error) {
 	}
 
 	authenticator := TestAuthenticator{global_password}
+	return authenticator, nil
+}
+
+type ImapAuthenticator struct {
+	server string
+}
+
+func (a ImapAuthenticator) Authenticate(username, password string) (err error) {
+	client, err := imap.Dial(a.server)
+	if client != nil {
+		defer client.Logout(30 * time.Second)
+	}
+	if err != nil {
+		return
+	}
+
+	if client.Caps["STARTTLS"] {
+		if _, err = client.StartTLS(nil); err != nil {
+			return
+		}
+	}
+
+	if client.State() == imap.Login {
+		if _, err = client.Login(username, password); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+func NewImapAuthenticator(app GorgonApp) (Authenticator, error) {
+	server, ok := app.Config.Get("auth:imap", "server")
+	if !ok {
+		panic("'server' variable missing from 'auth:imap' section")
+	}
+
+	authenticator := ImapAuthenticator{server}
 	return authenticator, nil
 }
