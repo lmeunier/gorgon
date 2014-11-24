@@ -14,30 +14,54 @@ var (
 	}
 )
 
+// Authenticator is an interface representing a method to authenticate a user.
+// Only one function must be implemented: Authenticate(username, password
+// string) that returns nil when the username/password pair is correct or an
+// error.
+type Authenticator interface {
+	Authenticate(username, password string) error
+}
+
+// NewAuthenticator returns an Authenticator based on the provided name. The
+// authenticator is configured from app.Config.
 func NewAuthenticator(app GorgonApp, name string) (authenticator Authenticator, err error) {
 	if _, ok := Authenticators[name]; !ok {
 		err := errors.New("Authenticator '" + name + "' does not exist.")
 		return nil, err
 	}
 
+	// call the function to create the authenticator, the app is the only
+	// argument passed to the function
 	params := []reflect.Value{reflect.ValueOf(app)}
 	results := Authenticators[name].Call(params)
 
+	// cast the first returned value as an Authenticator interface ...
 	authenticator = results[0].Interface().(Authenticator)
 	if results[1].Interface() != nil {
+		// ... and the second returned value as an error
 		err = results[1].Interface().(error)
 	}
 	return
 }
 
-type Authenticator interface {
-	Authenticate(username, password string) error
-}
-
+// TestAuthenticator implements the Authenticator interface and is a very
+// simple auth method whose first goal is to test a Gorgon app. This
+// authenticator should not be used in production.
+//
+// An example configuration looks like this:
+//
+// [global]
+// ...
+// auth = test
+//
+// [auth:test]
+// global_password = myverysecretpassword
+//
 type TestAuthenticator struct {
-	global_password string
+	global_password string // global password to authenticate all users
 }
 
+// Authenticate uses a global password to authenticate all users.
 func (a TestAuthenticator) Authenticate(username, password string) (err error) {
 	if a.global_password != password {
 		err = errors.New("TestAuthenticator: authentication failed")
@@ -45,6 +69,7 @@ func (a TestAuthenticator) Authenticate(username, password string) (err error) {
 	return
 }
 
+// NewTestAuthenticator returns a populated TestAuthenticator.
 func NewTestAuthenticator(app GorgonApp) (Authenticator, error) {
 	global_password, ok := app.Config.Get("auth:test", "global_password")
 	if !ok {
@@ -55,10 +80,27 @@ func NewTestAuthenticator(app GorgonApp) (Authenticator, error) {
 	return authenticator, nil
 }
 
+// ImapAuthenticator implements the Authenticator interface to authenticate
+// users against an Imap server. The username (email) and password are passed
+// without modification to the Imap server.
+//
+// An example configuration looks like this:
+//
+// [global]
+// ...
+// auth = imap
+//
+// [auth:imap]
+// server = imap.example.com
+//
 type ImapAuthenticator struct {
-	server string
+	server string // hostname or address of an Imap server
 }
 
+// Authenticate uses an Imap server to authenticate users. If the Imap server
+// advertise the STARTTLS capability, the connection switches to TLS. The
+// username (email) and password are passed without modification to the Imap
+// server.
 func (a ImapAuthenticator) Authenticate(username, password string) (err error) {
 	client, err := imap.Dial(a.server)
 	if client != nil {
@@ -83,6 +125,7 @@ func (a ImapAuthenticator) Authenticate(username, password string) (err error) {
 	return
 }
 
+// NewImapAuthenticator returns a populated ImapAuthenticator
 func NewImapAuthenticator(app GorgonApp) (Authenticator, error) {
 	server, ok := app.Config.Get("auth:imap", "server")
 	if !ok {

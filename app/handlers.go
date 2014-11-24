@@ -7,15 +7,19 @@ import (
 	"strconv"
 )
 
+// gorgonHandler implements the Handler interface to add the ability to access
+// our GorgonApp from handlers.
 type gorgonHandler struct {
 	app    GorgonApp
 	handle func(GorgonApp, http.ResponseWriter, *http.Request)
 }
 
+// ServeHTTP add the ability to access our GorgonApp from handlers.
 func (gh gorgonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	gh.handle(gh.app, w, r)
 }
 
+// SupportDocumentHandler returns the SupportDocument in a JSON encoded response.
 func SupportDocumentHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) {
 	support_document := app.supportDocument
 	b, err := json.Marshal(support_document)
@@ -26,6 +30,11 @@ func SupportDocumentHandler(app GorgonApp, w http.ResponseWriter, r *http.Reques
 	w.Write(b)
 }
 
+// AuthenticationHandler is responsible of presenting the auth form and
+// authenticating the user using the app Authenticator and the
+// username/password provided by the user.
+// If the user is successfully authenticated, the "persona-auth" cookie is
+// updated with the username used in the authentication process.
 func AuthenticationHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) {
 	ctx := make(map[string]interface{})
 	ctx["Email"] = ""
@@ -33,16 +42,23 @@ func AuthenticationHandler(app GorgonApp, w http.ResponseWriter, r *http.Request
 	session, _ := app.sessionStore.Get(r, "persona-auth")
 
 	if r.Method == "POST" {
+		// the user submitted the HTMl form
 		username := r.FormValue("email")
 		password := r.FormValue("password")
 
 		ctx["Email"] = username
 
+		// try to authenticate the user
 		err := app.Authenticator.Authenticate(username, password)
 		if err == nil {
+			// the authentication process is ok
+			// add the username in the session
 			session.Values["authenticated_as"] = username
 		} else {
+			// the authentication process failed
+			// remove the username from the session
 			delete(session.Values, "authenticated_as")
+			// notify the user
 			ctx["ValidationError"] = "Authentication failure"
 		}
 	}
@@ -52,6 +68,7 @@ func AuthenticationHandler(app GorgonApp, w http.ResponseWriter, r *http.Request
 		ctx["Email"] = emails[0]
 	}
 
+	// render the template
 	ctx["Session"] = session
 	err := app.templates.ExecuteTemplate(w, "authentication.html", ctx)
 	if err != nil {
@@ -59,6 +76,8 @@ func AuthenticationHandler(app GorgonApp, w http.ResponseWriter, r *http.Request
 	}
 }
 
+// ProvisioningHandler returns the content of hidden iframe. The content
+// depends if the user have an active session or not.
 func ProvisioningHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) {
 	ctx := make(map[string]interface{})
 	session, _ := app.sessionStore.Get(r, "persona-auth")
@@ -70,6 +89,9 @@ func ProvisioningHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// GenerateCertificateHandler is called via an AJAX request from the
+// provisioning page when the user is authenticated. This handler returns a
+// generated certificate from informations provided in the query string.
 func GenerateCertificateHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) {
 	session, _ := app.sessionStore.Get(r, "persona-auth")
 	email := ""
@@ -92,23 +114,24 @@ func GenerateCertificateHandler(app GorgonApp, w http.ResponseWriter, r *http.Re
 	private_key := app.privateKey
 	public_key := app.publicKey
 
-	// TODO vérifier la public_key
+	// with all theses informations, we can now generate a certificate
 	certificate, err := CreateCertificate(private_key, public_key, email, cert_duration, pubkey, app.domain)
 	if err != nil {
 		log.Panic(err)
 	}
 
+	// send the certificate to the browser
 	w.Write(certificate)
 }
 
+// CheckAuthenticateHandler checks if the user has an active session (the user
+// is authenticated). If the user is not authenticated returns an HTTP code 403
+// (Forbidden), else returns an HTTP code 200 (OK).
 func CheckAuthenticatedHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) {
 	session, _ := app.sessionStore.Get(r, "persona-auth")
 	_, ok := session.Values["authenticated_as"]
 
 	if !ok {
-		log.Println("Check: *NOT* authenticated")
 		w.WriteHeader(http.StatusForbidden)
 	}
-
-	log.Println("Check: authenticated")
 }
