@@ -30,6 +30,7 @@ type GorgonApp struct {
 	templates       *template.Template    // list of all templates used by the application
 	domain          string                // domain name used for this IdP
 	Authenticator   Authenticator         // method to authenticate users
+	ListenAddress   string                // network address on which the app will listens
 }
 
 // NewApp returns a GorgonApp fully configured and initialized. Panic if the
@@ -77,6 +78,9 @@ func NewApp(config_file string) GorgonApp {
 	// the domain used for this IdP (should be the domain part of the email address)
 	domain, _ := config.Get("global", "idp_domain")
 
+	// the listen network address
+	listenAddress, _ := config.Get("global", "listen")
+
 	// create the Gorgon application
 	app := GorgonApp{
 		config,
@@ -88,6 +92,7 @@ func NewApp(config_file string) GorgonApp {
 		templates,
 		domain,
 		nil,
+		listenAddress,
 	}
 
 	// create the authentication method
@@ -111,5 +116,5 @@ func NewApp(config_file string) GorgonApp {
 // ListenAndServe listens on the TCP network address provided by the app
 // configuration and then serve requests on incoming connections.
 func (app GorgonApp) ListenAndServe() error {
-	return http.ListenAndServe(":5000", app.Router)
+	return http.ListenAndServe(app.ListenAddress, app.Router)
 }
