@@ -6,6 +6,7 @@ import (
 	"github.com/vaughan0/go-ini"
 	"html/template"
 	"log"
+	"net/http"
 	"strings"
 )
 
@@ -105,4 +106,10 @@ func NewApp(config_file string) GorgonApp {
 	app.Router.Handle("/browserid/is_authenticated", gorgonHandler{app, CheckAuthenticatedHandler})
 
 	return app
+}
+
+// ListenAndServe listens on the TCP network address provided by the app
+// configuration and then serve requests on incoming connections.
+func (app GorgonApp) ListenAndServe() error {
+	return http.ListenAndServe(":5000", app.Router)
 }
