@@ -1,0 +1,12 @@
+[global]
+listen = :5000
+public_key = public-key.pem
+private_key = private-key.pem
+idp_domain = example.com
+auth = test
+
+[auth:test]
+global_password = verysecret
+
+[auth:imap]
+server = imap.example.com
