@@ -1,2 +1,3 @@
 gorgon
 app/bindata.go
+dist/
