@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+var (
+	version = "0.1.0-dev"
+)
+
 // SupportDocument represents the document where domains advertise their
 // ability to act as Persona Identity Providers located at:
 // "/.well-known/browserid".
