@@ -1,10 +1,14 @@
 package main
 
 import (
+	"flag"
 	"github.com/lmeunier/gorgon/app"
 )
 
 func main() {
-	app := app.NewApp("gorgon.ini")
+	config_file := flag.String("c", "gorgon.ini", "Path to the Gorgon configuration file.")
+	flag.Parse()
+
+	app := app.NewApp(*config_file)
 	panic(app.ListenAndServe())
 }
