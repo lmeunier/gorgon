@@ -3,15 +3,17 @@ package app
 import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/op/go-logging"
 	"github.com/vaughan0/go-ini"
 	"html/template"
-	"log"
 	"net/http"
+	"os"
 	"strings"
+	"time"
 )
 
 var (
-	version = "0.1.0-dev"
+	Version = "0.1.0-dev"
 )
 
 // SupportDocument represents the document where domains advertise their
@@ -35,29 +37,39 @@ type GorgonApp struct {
 	domain          string                // domain name used for this IdP
 	Authenticator   Authenticator         // method to authenticate users
 	ListenAddress   string                // network address on which the app will listens
+	Logger          *logging.Logger       // Logger for this app
 }
 
 // NewApp returns a GorgonApp fully configured and initialized. Panic if the
 // app can't be initialized.
 func NewApp(config_file string) GorgonApp {
+	// initialize the logger
+	logger := logging.MustGetLogger("gorgon")
+	var format = logging.MustStringFormatter(
+		"[%{time:" + time.RFC3339 + "} %{level}] %{message}",
+	)
+	backend1 := logging.NewLogBackend(os.Stderr, "", 0)
+	bf := logging.NewBackendFormatter(backend1, format)
+	logging.SetBackend(bf)
+
 	// load the configuration file
 	config, err := ini.LoadFile(config_file)
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal("Unable to load configuration file '" + config_file + "': " + err.Error())
 	}
 
 	// load the public key
 	public_key_filename, _ := config.Get("global", "public_key")
 	public_key, err := LoadPublicKey(public_key_filename)
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal("Unable to load public key '" + public_key_filename + "': " + err.Error())
 	}
 
 	// load the private key
 	private_key_filename, _ := config.Get("global", "private_key")
 	private_key, err := LoadPrivateKey(private_key_filename)
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal("Unable to load private key '" + private_key_filename + "': " + err.Error())
 	}
 
 	// create the support document
@@ -73,7 +85,7 @@ func NewApp(config_file string) GorgonApp {
 		if strings.HasSuffix(assetName, ".html") {
 			data, err := Asset(assetName)
 			if err != nil {
-				log.Panic(err)
+				logger.Fatal("Unable to load template '" + assetName + "': " + err.Error())
 			}
 			templates.New(assetName).Parse(string(data))
 		}
@@ -97,13 +109,14 @@ func NewApp(config_file string) GorgonApp {
 		domain,
 		nil,
 		listenAddress,
+		logger,
 	}
 
 	// create the authentication method
 	authenticator_name, _ := config.Get("global", "auth")
 	authenticator, err := NewAuthenticator(app, authenticator_name)
 	if err != nil {
-		log.Panic(err)
+		logger.Panic("Unable to create auth backend '" + authenticator_name + "': " + err.Error())
 	}
 	app.Authenticator = authenticator
 

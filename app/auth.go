@@ -71,6 +71,8 @@ func (a TestAuthenticator) Authenticate(username, password string) (err error) {
 
 // NewTestAuthenticator returns a populated TestAuthenticator.
 func NewTestAuthenticator(app GorgonApp) (Authenticator, error) {
+	app.Logger.Warning("You are using the test authenticator. Do *NOT* use this " +
+		"authenticator in a production environment.")
 	global_password, ok := app.Config.Get("auth:test", "global_password")
 	if !ok {
 		panic("'global_password' variable missing from 'auth:test' section")

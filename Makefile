@@ -1,4 +1,4 @@
-VERSION = $(shell sed -n -e 's/[[:blank:]]version = "\(.*\)"/\1/p' app/gorgon.go)
+VERSION = $(shell sed -n -e 's/[[:blank:]]Version = "\(.*\)"/\1/p' app/gorgon.go)
 
 build:
 	go-bindata -o app/bindata.go -pkg app -prefix "./app/data/" ./app/data/...
@@ -15,4 +15,5 @@ install_deps:
 	go get -u github.com/gorilla/sessions
 	go get -u github.com/jteeuwen/go-bindata/...
 	go get -u github.com/mxk/go-imap/imap
+	go get -u github.com/op/go-logging
 	go get -u github.com/vaughan0/go-ini
