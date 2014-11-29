@@ -3,6 +3,7 @@ listen = :5000
 public_key = public-key.pem
 private_key = private-key.pem
 idp_domain = example.com
+session_secret_key =
 auth = test
 
 [auth:test]

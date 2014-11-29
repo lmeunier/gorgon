@@ -97,11 +97,20 @@ func NewApp(config_file string) GorgonApp {
 	// the listen network address
 	listenAddress, _ := config.Get("global", "listen")
 
+	// the session secret key
+	session_secret_key, _ := config.Get("global", "session_secret_key")
+	if session_secret_key == "" {
+		logger.Fatal("The 'session_secret_key' is empty.")
+	}
+	if len(session_secret_key) != 64 && len(session_secret_key) != 32 {
+		logger.Fatalf("The 'session_secret_key' must have a length of 32 or 64 bytes (currently: %d).", len(session_secret_key))
+	}
+
 	// create the Gorgon application
 	app := GorgonApp{
 		config,
 		mux.NewRouter(),
-		sessions.NewCookieStore([]byte("TODO")),
+		sessions.NewCookieStore([]byte(session_secret_key)),
 		support_document,
 		public_key,
 		private_key,
