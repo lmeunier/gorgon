@@ -65,6 +65,8 @@ func AuthenticationHandler(app GorgonApp, w http.ResponseWriter, r *http.Request
 			delete(session.Values, "authenticated_as")
 			// notify the user
 			ctx["ValidationError"] = "Authentication failure"
+
+			app.Logger.Warning("Authentication failed for '" + username + "': " + err.Error())
 		}
 	}
 	session.Save(r, w)
