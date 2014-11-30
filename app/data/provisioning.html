@@ -8,7 +8,7 @@
     function generate_server_side(email, public_key, cert_duration, callback) {
       var req = new XMLHttpRequest();
       var params = "email="+encodeURIComponent(email)+"&public_key="+encodeURIComponent(public_key)+"&cert_duration="+encodeURIComponent(cert_duration);
-      req.open('GET', '/.well-known/browserid/_gorgon/generate_certificate?' + params);
+      req.open('GET', '{{ .generate_certificate_url }}?' + params);
       req.onreadystatechange = function(evt) {
         if(req.readyState == 4) {
           if(req.status == 200) {

@@ -85,7 +85,9 @@ func AuthenticationHandler(app *GorgonApp, w http.ResponseWriter, r *http.Reques
 func ProvisioningHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	ctx := make(map[string]interface{})
 	session, _ := app.sessionStore.Get(r, "persona-auth")
+	generate_certificate_url, _ := app.Router.Get("generate_certificate").URL()
 	ctx["Session"] = session
+	ctx["generate_certificate_url"] = generate_certificate_url
 
 	return app.templates.ExecuteTemplate(w, "provisioning.html", ctx)
 }
