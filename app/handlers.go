@@ -25,7 +25,7 @@ func (gh gorgonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // SupportDocumentHandler returns the SupportDocument in a JSON encoded response.
 func SupportDocumentHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
-	support_document := app.supportDocument
+	support_document := app.GetSupportDocument()
 	b, err := json.Marshal(support_document)
 	if err != nil {
 		return

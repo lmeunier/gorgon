@@ -27,17 +27,16 @@ type SupportDocument struct {
 
 // GorgonApp represents an application used to act as a Persona IdP.
 type GorgonApp struct {
-	Config          ini.File              // configuration read from a configuration file
-	Router          *mux.Router           // routes to URL
-	sessionStore    *sessions.CookieStore // users sessions (client side cookie)
-	supportDocument SupportDocument       // Persona support document
-	publicKey       *PublicKey            // public key for the domain
-	privateKey      *PrivateKey           // private key for the domain
-	templates       *template.Template    // list of all templates used by the application
-	domain          string                // domain name used for this IdP
-	Authenticator   Authenticator         // method to authenticate users
-	ListenAddress   string                // network address on which the app will listens
-	Logger          *logging.Logger       // Logger for this app
+	Config        ini.File              // configuration read from a configuration file
+	Router        *mux.Router           // routes to URL
+	sessionStore  *sessions.CookieStore // users sessions (client side cookie)
+	publicKey     *PublicKey            // public key for the domain
+	privateKey    *PrivateKey           // private key for the domain
+	templates     *template.Template    // list of all templates used by the application
+	domain        string                // domain name used for this IdP
+	Authenticator Authenticator         // method to authenticate users
+	ListenAddress string                // network address on which the app will listens
+	Logger        *logging.Logger       // Logger for this app
 }
 
 // NewApp returns a GorgonApp fully configured and initialized. Panic if the
@@ -72,13 +71,6 @@ func NewApp(config_file string) GorgonApp {
 		logger.Fatal("Unable to load private key '" + private_key_filename + "': " + err.Error())
 	}
 
-	// create the support document
-	support_document := SupportDocument{
-		"/.well-known/browserid/_gorgon/authentication",
-		"/.well-known/browserid/_gorgon/provisioning",
-		public_key,
-	}
-
 	// load all "*.html" templates from the data directory
 	templates := template.New("")
 	for _, assetName := range AssetNames() {
@@ -111,7 +103,6 @@ func NewApp(config_file string) GorgonApp {
 		config,
 		mux.NewRouter(),
 		sessions.NewCookieStore([]byte(session_secret_key)),
-		support_document,
 		public_key,
 		private_key,
 		templates,
@@ -130,11 +121,11 @@ func NewApp(config_file string) GorgonApp {
 	app.Authenticator = authenticator
 
 	// define routes
-	app.Router.Handle("/.well-known/browserid", gorgonHandler{&app, SupportDocumentHandler})
-	app.Router.Handle("/.well-known/browserid/_gorgon/authentication", gorgonHandler{&app, AuthenticationHandler})
-	app.Router.Handle("/.well-known/browserid/_gorgon/provisioning", gorgonHandler{&app, ProvisioningHandler})
-	app.Router.Handle("/.well-known/browserid/_gorgon/generate_certificate", gorgonHandler{&app, GenerateCertificateHandler})
-	app.Router.Handle("/.well-known/browserid/_gorgon/is_authenticated", gorgonHandler{&app, CheckAuthenticatedHandler})
+	app.Router.Handle("/.well-known/browserid", gorgonHandler{&app, SupportDocumentHandler}).Name("support_document")
+	app.Router.Handle("/.well-known/browserid/_gorgon/authentication", gorgonHandler{&app, AuthenticationHandler}).Name("authentication")
+	app.Router.Handle("/.well-known/browserid/_gorgon/provisioning", gorgonHandler{&app, ProvisioningHandler}).Name("provisioning")
+	app.Router.Handle("/.well-known/browserid/_gorgon/generate_certificate", gorgonHandler{&app, GenerateCertificateHandler}).Name("generate_certificate")
+	app.Router.Handle("/.well-known/browserid/_gorgon/is_authenticated", gorgonHandler{&app, CheckAuthenticatedHandler}).Name("check_authenticate")
 
 	return app
 }
@@ -143,4 +134,16 @@ func NewApp(config_file string) GorgonApp {
 // configuration and then serve requests on incoming connections.
 func (app GorgonApp) ListenAndServe() error {
 	return http.ListenAndServe(app.ListenAddress, app.Router)
+}
+
+// GetSupportDocument returns a SupportDocument struct for the GorgonApp.
+func (app *GorgonApp) GetSupportDocument() SupportDocument {
+	// create the support document
+	authentication_url, _ := app.Router.Get("authentication").URL()
+	provisioning_url, _ := app.Router.Get("provisioning").URL()
+	return SupportDocument{
+		authentication_url.String(),
+		provisioning_url.String(),
+		app.publicKey,
+	}
 }
