@@ -74,8 +74,8 @@ func NewApp(config_file string) GorgonApp {
 
 	// create the support document
 	support_document := SupportDocument{
-		"/browserid/authentication.html",
-		"/browserid/provisioning.html",
+		"/.well-known/browserid/_gorgon/authentication",
+		"/.well-known/browserid/_gorgon/provisioning",
 		public_key,
 	}
 
@@ -131,10 +131,10 @@ func NewApp(config_file string) GorgonApp {
 
 	// define routes
 	app.Router.Handle("/.well-known/browserid", gorgonHandler{app, SupportDocumentHandler})
-	app.Router.Handle("/browserid/authentication.html", gorgonHandler{app, AuthenticationHandler})
-	app.Router.Handle("/browserid/provisioning.html", gorgonHandler{app, ProvisioningHandler})
-	app.Router.Handle("/browserid/generate_certificate.html", gorgonHandler{app, GenerateCertificateHandler})
-	app.Router.Handle("/browserid/is_authenticated", gorgonHandler{app, CheckAuthenticatedHandler})
+	app.Router.Handle("/.well-known/browserid/_gorgon/authentication", gorgonHandler{app, AuthenticationHandler})
+	app.Router.Handle("/.well-known/browserid/_gorgon/provisioning", gorgonHandler{app, ProvisioningHandler})
+	app.Router.Handle("/.well-known/browserid/_gorgon/generate_certificate", gorgonHandler{app, GenerateCertificateHandler})
+	app.Router.Handle("/.well-known/browserid/_gorgon/is_authenticated", gorgonHandler{app, CheckAuthenticatedHandler})
 
 	return app
 }
