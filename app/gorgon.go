@@ -29,11 +29,11 @@ type SupportDocument struct {
 type GorgonApp struct {
 	Config        ini.File              // configuration read from a configuration file
 	Router        *mux.Router           // routes to URL
-	sessionStore  *sessions.CookieStore // users sessions (client side cookie)
-	publicKey     *PublicKey            // public key for the domain
-	privateKey    *PrivateKey           // private key for the domain
-	templates     *template.Template    // list of all templates used by the application
-	domain        string                // domain name used for this IdP
+	SessionStore  *sessions.CookieStore // users sessions (client side cookie)
+	PublicKey     *PublicKey            // public key for the domain
+	PrivateKey    *PrivateKey           // private key for the domain
+	Templates     *template.Template    // list of all templates used by the application
+	Domain        string                // domain name used for this IdP
 	Authenticator Authenticator         // method to authenticate users
 	ListenAddress string                // network address on which the app will listens
 	Logger        *logging.Logger       // Logger for this app
@@ -144,6 +144,6 @@ func (app *GorgonApp) GetSupportDocument() SupportDocument {
 	return SupportDocument{
 		authentication_url.String(),
 		provisioning_url.String(),
-		app.publicKey,
+		app.PublicKey,
 	}
 }

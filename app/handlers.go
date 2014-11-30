@@ -44,7 +44,7 @@ func AuthenticationHandler(app *GorgonApp, w http.ResponseWriter, r *http.Reques
 	ctx := make(map[string]interface{})
 	ctx["Email"] = ""
 
-	session, _ := app.sessionStore.Get(r, "persona-auth")
+	session, _ := app.SessionStore.Get(r, "persona-auth")
 
 	if r.Method == "POST" {
 		// the user submitted the HTMl form
@@ -77,26 +77,26 @@ func AuthenticationHandler(app *GorgonApp, w http.ResponseWriter, r *http.Reques
 
 	// render the template
 	ctx["Session"] = session
-	return app.templates.ExecuteTemplate(w, "authentication.html", ctx)
+	return app.Templates.ExecuteTemplate(w, "authentication.html", ctx)
 }
 
 // ProvisioningHandler returns the content of hidden iframe. The content
 // depends if the user have an active session or not.
 func ProvisioningHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	ctx := make(map[string]interface{})
-	session, _ := app.sessionStore.Get(r, "persona-auth")
+	session, _ := app.SessionStore.Get(r, "persona-auth")
 	generate_certificate_url, _ := app.Router.Get("generate_certificate").URL()
 	ctx["Session"] = session
 	ctx["generate_certificate_url"] = generate_certificate_url
 
-	return app.templates.ExecuteTemplate(w, "provisioning.html", ctx)
+	return app.Templates.ExecuteTemplate(w, "provisioning.html", ctx)
 }
 
 // GenerateCertificateHandler is called via an AJAX request from the
 // provisioning page when the user is authenticated. This handler returns a
 // generated certificate from informations provided in the query string.
 func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
-	session, _ := app.sessionStore.Get(r, "persona-auth")
+	session, _ := app.SessionStore.Get(r, "persona-auth")
 	email := ""
 	if vals, ok := r.URL.Query()["email"]; ok {
 		email = vals[0]
@@ -114,11 +114,8 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 		json.Unmarshal([]byte(vals[0]), &pubkey)
 	}
 
-	private_key := app.privateKey
-	public_key := app.publicKey
-
 	// with all theses informations, we can now generate a certificate
-	certificate, err := CreateCertificate(private_key, public_key, email, cert_duration, pubkey, app.domain)
+	certificate, err := CreateCertificate(app.PrivateKey, app.PublicKey, email, cert_duration, pubkey, app.Domain)
 	if err != nil {
 		return
 	}
@@ -132,7 +129,7 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 // is authenticated). If the user is not authenticated returns an HTTP code 403
 // (Forbidden), else returns an HTTP code 200 (OK).
 func CheckAuthenticatedHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
-	session, _ := app.sessionStore.Get(r, "persona-auth")
+	session, _ := app.SessionStore.Get(r, "persona-auth")
 	_, ok := session.Values["authenticated_as"]
 
 	if !ok {
