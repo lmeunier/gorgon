@@ -9,8 +9,8 @@ import (
 // gorgonHandler implements the Handler interface to add the ability to access
 // our GorgonApp from handlers.
 type gorgonHandler struct {
-	app    GorgonApp
-	handle func(GorgonApp, http.ResponseWriter, *http.Request) error
+	app    *GorgonApp
+	handle func(*GorgonApp, http.ResponseWriter, *http.Request) error
 }
 
 // ServeHTTP add the ability to access our GorgonApp from handlers.
@@ -24,7 +24,7 @@ func (gh gorgonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // SupportDocumentHandler returns the SupportDocument in a JSON encoded response.
-func SupportDocumentHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
+func SupportDocumentHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	support_document := app.supportDocument
 	b, err := json.Marshal(support_document)
 	if err != nil {
@@ -40,7 +40,7 @@ func SupportDocumentHandler(app GorgonApp, w http.ResponseWriter, r *http.Reques
 // username/password provided by the user.
 // If the user is successfully authenticated, the "persona-auth" cookie is
 // updated with the username used in the authentication process.
-func AuthenticationHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
+func AuthenticationHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	ctx := make(map[string]interface{})
 	ctx["Email"] = ""
 
@@ -82,7 +82,7 @@ func AuthenticationHandler(app GorgonApp, w http.ResponseWriter, r *http.Request
 
 // ProvisioningHandler returns the content of hidden iframe. The content
 // depends if the user have an active session or not.
-func ProvisioningHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
+func ProvisioningHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	ctx := make(map[string]interface{})
 	session, _ := app.sessionStore.Get(r, "persona-auth")
 	ctx["Session"] = session
@@ -93,7 +93,7 @@ func ProvisioningHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) 
 // GenerateCertificateHandler is called via an AJAX request from the
 // provisioning page when the user is authenticated. This handler returns a
 // generated certificate from informations provided in the query string.
-func GenerateCertificateHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
+func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	session, _ := app.sessionStore.Get(r, "persona-auth")
 	email := ""
 	if vals, ok := r.URL.Query()["email"]; ok {
@@ -129,7 +129,7 @@ func GenerateCertificateHandler(app GorgonApp, w http.ResponseWriter, r *http.Re
 // CheckAuthenticateHandler checks if the user has an active session (the user
 // is authenticated). If the user is not authenticated returns an HTTP code 403
 // (Forbidden), else returns an HTTP code 200 (OK).
-func CheckAuthenticatedHandler(app GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
+func CheckAuthenticatedHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	session, _ := app.sessionStore.Get(r, "persona-auth")
 	_, ok := session.Values["authenticated_as"]
 
