@@ -37,12 +37,59 @@ you can `build Gorgon from sources <#build>`_.
    cp gorgon.ini.example gorgon.ini
    $EDITOR gorgon.ini
 
+Configure
+---------
+
+Gorgon needs a configuration file. By default, it will try to read the file
+``gorgin.ini`` in the current folder, you can change the path to the
+configuration file with the ``-c`` flag. For example:
+
+.. code:: bash
+
+   ./gorgon -c /etc/gorgon/my_gorgon_config.ini
+
+The configuration file is a classic INI file parsed with `go-ini
+<https://github.com/vaughan0/go-ini#file-format>`_.
+
+Test Authenticator
+~~~~~~~~~~~~~~~~~~
+
+The Test Authenticator let you define a global password, this password will be
+used for all authentication attempts (you can authenticate as any user with
+this password). Do **NOT** use this authentication method in production.
+
+.. code:: ini
+
+   [global]
+   ...
+   auth = test
+
+   [auth:test]
+   global_password = myverysecretpassword
+
+IMAP Authenticator
+~~~~~~~~~~~~~~~~~~
+
+The IMAP Authenticator uses an IMAP server to authenticate users. If the IMAP
+server advertise the ``STARTTLS`` capability, the connection switches to TLS.
+The username (email address) and password are sent without modification to the
+IMAP server.
+
+.. code:: ini
+
+   [global]
+   ...
+   auth = imap
+
+   [auth:imap]
+   server = imap.example.com
+
 Run
 ---
 
-Once Gorgon is `installed and configured <#install>`_, you are ready to run it.
-To start Gorgon, you just have to invoke the ``./gorgon`` command in the folder
-where Gorgon is installed.
+Once Gorgon is `installed <#install>`_ and `configured <#configure>`_, you are
+ready to run it.  To start Gorgon, you just have to invoke the ``./gorgon``
+command in the folder where Gorgon is installed.
 
 Gorgon will not daemonize itself. To run Gorgon as a background process, you
 must use a tool like `Supervisor <http://supervisord.org/>`_ or `systemd
@@ -50,7 +97,7 @@ must use a tool like `Supervisor <http://supervisord.org/>`_ or `systemd
 
 Once started, Gorgon will listen for HTTP requests on the ``interface:port``
 defined in the configuration file. It's up to you to configure your webserver
-to redirect requests to Gorgon.
+to redirect HTTP requests to Gorgon.
 
 Build
 -----
