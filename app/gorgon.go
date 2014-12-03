@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	Version = "0.1.0-dev"
+	Version = "0.1.0"
 )
 
 // SupportDocument represents the document where domains advertise their
