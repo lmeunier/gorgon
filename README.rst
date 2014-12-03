@@ -99,6 +99,58 @@ Once started, Gorgon will listen for HTTP requests on the ``interface:port``
 defined in the configuration file. It's up to you to configure your webserver
 to redirect HTTP requests to Gorgon.
 
+Serve
+-----
+
+Every Persona IdP must be served:
+
+- over HTTPS
+- from the exact host part of the email address, not a subdomain
+
+For example, if your email address is ``alice@example.com``, you must configure
+your webserver to redirect every requests for
+``https://example.com/.well-known/browserid`` (and everything under this URL)
+to Gorgon.
+
+Here are example configurations for common webservers.
+
+Nginx
+~~~~~
+
+.. code::
+
+  server {
+    listen [::]:443;
+    server_name "example.com";
+    ssl on;
+    ssl_certificate /path/to/example.com.crt;
+    ssl_certificate_key /path/to/private.key;
+
+    location /.well-known/browserid {
+      # Gorgon is listening on port 5000
+      proxy_pass http://127.0.0.1:5000;
+    }
+  }
+
+Apache
+~~~~~~
+
+.. code::
+
+  <VirtualHost *:443>
+    ServerName example.com
+    SSLEngine On
+    SSLCertificateFile /path/to/example.com.crt
+    SSLCertificateKeyFile /path/to/private.key
+
+    <Location /.well-known/browserid>
+      # Gorgon is listening on port 5000
+      ProxyPass / http://127.0.0.1:5000/
+      ProxyPassReverse / http://127.0.0.1:5000/
+    </Location>
+  </VirtualHost>
+
+
 Build
 -----
 
