@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 </head>
@@ -21,9 +22,6 @@
     navigator.id.beginProvisioning(function(email, cert_duration) {
         navigator.id.genKeyPair(function(public_key) {
           generate_server_side(email, public_key, cert_duration, function (certificate) {
-            // generateServerSide something you would write.
-            // In this example, imagine it does an AJAX request to create a certificate,
-            // and then invokes a callback with that certificate.
             navigator.id.registerCertificate(certificate);
           });
       });
