@@ -20,9 +20,9 @@
 {{end}}
 <script type="text/javascript">
 var btn_cancel = document.getElementById('btn_cancel');
-btn_cancel.click = function() {
+btn_cancel.addEventListener("click", function() {
   navigator.id.raiseAuthenticationFailure('user clicked cancel');
-};
+});
 </script>
 </body>
 </html>
