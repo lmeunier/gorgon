@@ -42,6 +42,7 @@ func SupportDocumentHandler(app *GorgonApp, w http.ResponseWriter, r *http.Reque
 // updated with the username used in the authentication process.
 func AuthenticationHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	ctx := make(map[string]interface{})
+	ctx["App"] = app
 	ctx["Email"] = ""
 
 	session, _ := app.SessionStore.Get(r, "persona-auth")
@@ -64,7 +65,7 @@ func AuthenticationHandler(app *GorgonApp, w http.ResponseWriter, r *http.Reques
 			// remove the username from the session
 			delete(session.Values, "authenticated_as")
 			// notify the user
-			ctx["ValidationError"] = "Authentication failure"
+			ctx["ValidationError"] = true
 
 			app.Logger.Warning("Authentication failed for '" + username + "': " + err.Error())
 		}

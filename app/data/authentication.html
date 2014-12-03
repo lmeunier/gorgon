@@ -1,28 +1,111 @@
+<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <title>Authentication page for {{ .App.Domain }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    html {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.42857;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: inline-block;
+      font-weight: 700;
+      margin-bottom: 5px;
+      max-width: 100%;
+    }
+    input {
+      border: 1px solid #ccc;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+      color: #555;
+      display: block;
+      font-size: 14px;
+      height: 34px;
+      padding: 6px 12px;
+      transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+      width: 100%;
+    }
+    input:focus {
+      border-color: #66afe9;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 4px rgba(102, 175, 233, 0.6);
+    }
+    button {
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-block;
+      padding: 6px 12px;
+      margin: 6px 12px;
+      transition: background-color 0.15s ease-in-out 0s;
+    }
+    #btn_cancel {
+      background-color: #d9534f;
+      border-color: #d9534f;
+      color: #fff;
+    }
+    #btn_cancel:hover {
+      background-color: #d43f3a;
+    }
+    #btn_submit {
+      background-color: #3a81be;
+      border-color: #3a81be;
+      color: #fff;
+    }
+    #btn_submit:hover {
+      background-color: #2e6da4;
+    }
+    .error {
+      background-color: #f2dede;
+      border: 1px solid #ebccd1;
+      color: #a94442;
+      padding: 6px 12px;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 <body>
-<script src="https://login.persona.org/authentication_api.js"></script>
-{{if .Session.Values.authenticated_as}}
+  <script src="https://login.persona.org/authentication_api.js"></script>
+
+  {{if .Session.Values.authenticated_as}}
+    <script type="text/javascript">
+      navigator.id.beginAuthentication(function(email) {
+        navigator.id.completeAuthentication();
+      });
+    </script>
+  {{else}}
+    {{if .ValidationError}}
+      <div class="error">
+        <strong>Authentication failed!</strong>
+        Your email address or your password is invalid.
+      </div>
+    {{end}}
+    <form method="POST">
+      <div class="form-group">
+        <label for="input_email">Email address</label>
+        <input id="input_email" type="text" name="email" placeholder="Enter email" value="{{.Email}}">
+      </div>
+      <div class="form-group">
+        <label for="input_password">Password</label>
+        <input id="input_password" type="password" name="password" placeholder="Password">
+      </div>
+
+      <button id="btn_cancel" type="button">Cancel</button>
+      <button id="btn_submit" type="submit">Authenticate</button>
+    </form>
+  {{end}}
+
   <script type="text/javascript">
-    navigator.id.beginAuthentication(function(email) {
-      navigator.id.completeAuthentication();
+    var btn_cancel = document.getElementById('btn_cancel');
+    btn_cancel.addEventListener("click", function() {
+      navigator.id.raiseAuthenticationFailure('user clicked cancel');
     });
   </script>
-{{else}}
-  {{if .ValidationError}}{{.ValidationError}}{{end}}
-  <form method="POST">
-    <input type="text" name="email" placeholder="email" value="{{.Email}}">
-    <input type="password" name="password" placeholder="password">
-    <button id="btn_cancel" type="button">Cancel</button>
-    <button id="btn_submit" type="submit">Authenticate</button>
-  </form>
-{{end}}
-<script type="text/javascript">
-var btn_cancel = document.getElementById('btn_cancel');
-btn_cancel.addEventListener("click", function() {
-  navigator.id.raiseAuthenticationFailure('user clicked cancel');
-});
-</script>
 </body>
 </html>
