@@ -121,11 +121,35 @@ func NewApp(config_file string) GorgonApp {
 	app.Authenticator = authenticator
 
 	// define routes
-	app.Router.Handle("/.well-known/browserid", gorgonHandler{&app, SupportDocumentHandler}).Name("support_document")
-	app.Router.Handle("/.well-known/browserid/_gorgon/authentication", gorgonHandler{&app, AuthenticationHandler}).Name("authentication")
-	app.Router.Handle("/.well-known/browserid/_gorgon/provisioning", gorgonHandler{&app, ProvisioningHandler}).Name("provisioning")
-	app.Router.Handle("/.well-known/browserid/_gorgon/generate_certificate", gorgonHandler{&app, GenerateCertificateHandler}).Name("generate_certificate")
-	app.Router.Handle("/.well-known/browserid/_gorgon/is_authenticated", gorgonHandler{&app, CheckAuthenticatedHandler}).Name("check_authenticate")
+	app.Router.Handle(
+		"/.well-known/browserid",
+		gorgonHandler{&app, SupportDocumentHandler}).
+		Methods("GET").
+		Name("support_document")
+
+	app.Router.Handle(
+		"/.well-known/browserid/_gorgon/authentication",
+		gorgonHandler{&app, AuthenticationHandler}).
+		Methods("GET", "POST").
+		Name("authentication")
+
+	app.Router.Handle(
+		"/.well-known/browserid/_gorgon/provisioning",
+		gorgonHandler{&app, ProvisioningHandler}).
+		Methods("GET").
+		Name("provisioning")
+
+	app.Router.Handle(
+		"/.well-known/browserid/_gorgon/generate_certificate",
+		gorgonHandler{&app, GenerateCertificateHandler}).
+		Methods("POST").
+		Name("generate_certificate")
+
+	app.Router.Handle(
+		"/.well-known/browserid/_gorgon/is_authenticated",
+		gorgonHandler{&app, CheckAuthenticatedHandler}).
+		Methods("GET").
+		Name("check_authenticate")
 
 	return app
 }
