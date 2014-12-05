@@ -98,8 +98,16 @@ func ProvisioningHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request)
 // generated certificate from informations provided in the query string.
 func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.Request) (err error) {
 	session, _ := app.SessionStore.Get(r, "persona-auth")
+
+	// parse data from the POST body
+	err = r.ParseForm()
+	if err != nil {
+		return
+	}
+
+	// fetch values from POST data
 	email := ""
-	if vals, ok := r.URL.Query()["email"]; ok {
+	if vals, ok := r.PostForm["email"]; ok {
 		email = vals[0]
 	}
 	if email != session.Values["authenticated_as"] {
@@ -107,11 +115,11 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 		return
 	}
 	cert_duration := 0
-	if vals, ok := r.URL.Query()["cert_duration"]; ok {
+	if vals, ok := r.PostForm["cert_duration"]; ok {
 		cert_duration, _ = strconv.Atoi(vals[0])
 	}
 	var pubkey map[string]string
-	if vals, ok := r.URL.Query()["public_key"]; ok {
+	if vals, ok := r.PostForm["public_key"]; ok {
 		json.Unmarshal([]byte(vals[0]), &pubkey)
 	}
 
