@@ -1,7 +1,8 @@
 [global]
 
 # interface:port on which Gorgon will listen for HTTP requests
-listen = :5000
+# use ":5000" to listen on all interfaces on port 5000
+listen = 127.0.0.1:5000
 
 # path to the public and private keys
 public_key = public-key.pem
