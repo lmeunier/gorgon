@@ -7,7 +7,7 @@ build:
 dist: build
 	mkdir -p dist/gorgon-$(VERSION)/
 	cp gorgon gorgon.ini.example dist/gorgon-$(VERSION)/
-	tar czf dist/gorgon-$(VERSION).tar.gz -C dist gorgon-$(VERSION)
+	tar czf dist/gorgon-$(VERSION).tar.gz -C dist gorgon-$(VERSION) --owner=0 --group=0
 
 install_deps:
 	go get -u github.com/dgrijalva/jwt-go
