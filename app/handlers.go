@@ -144,6 +144,11 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 	// with all theses informations, we can now generate a certificate
 	certificate, err := CreateCertificate(app.PrivateKey, app.PublicKey, email, cert_duration, pubkey, app.Domain)
 	if err != nil {
+		if _, ok := err.(*CertDurationError); ok {
+			app.Logger.Warning(err.Error())
+			w.WriteHeader(http.StatusBadRequest)
+			return nil
+		}
 		return
 	}
 

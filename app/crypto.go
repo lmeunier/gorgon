@@ -23,6 +23,17 @@ func (e *ErrorKey) Error() string {
 	return e.s
 }
 
+// CertDurationError is returned when the asked certificate duration is not
+// valid (> 24 hours)
+type CertDurationError struct {
+	s string // error message
+}
+
+// Error returns the error message
+func (e *CertDurationError) Error() string {
+	return e.s
+}
+
 // PublicKey represents an RSA public key that implements the Marshaler interface.
 type PublicKey struct {
 	*rsa.PublicKey // anonymous field to the real RSA public key
@@ -126,6 +137,11 @@ func LoadPrivateKey(filename string) (*PrivateKey, error) {
 // - principal:
 //   - email : the email address of the authenticated user
 func CreateCertificate(private_key *PrivateKey, public_key *PublicKey, email string, cert_duration time.Duration, pubkey map[string]string, iss string) ([]byte, error) {
+	// cert_duration must never exceed 24 hours
+	if cert_duration > 24*time.Hour {
+		return nil, &CertDurationError{"CreateCertificate: cert_duration exceed 24 hours"}
+	}
+
 	// create a new JSON Web Token
 	token := jwt.New(jwt.GetSigningMethod("RS256"))
 	token.Claims["iat"] = time.Now().Add(-time.Duration(10)*time.Second).Unix() * 1000
