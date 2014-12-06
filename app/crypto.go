@@ -125,11 +125,11 @@ func LoadPrivateKey(filename string) (*PrivateKey, error) {
 // - public-key: the public key provided by the browser
 // - principal:
 //   - email : the email address of the authenticated user
-func CreateCertificate(private_key *PrivateKey, public_key *PublicKey, email string, cert_duration int, pubkey map[string]string, iss string) ([]byte, error) {
+func CreateCertificate(private_key *PrivateKey, public_key *PublicKey, email string, cert_duration time.Duration, pubkey map[string]string, iss string) ([]byte, error) {
 	// create a new JSON Web Token
 	token := jwt.New(jwt.GetSigningMethod("RS256"))
 	token.Claims["iat"] = time.Now().Add(-time.Duration(10)*time.Second).Unix() * 1000
-	token.Claims["exp"] = time.Now().Add(time.Duration(cert_duration)*time.Second).Unix() * 1000
+	token.Claims["exp"] = time.Now().Add(cert_duration).Unix() * 1000
 	token.Claims["iss"] = iss
 	token.Claims["public-key"] = pubkey
 	token.Claims["principal"] = map[string]string{"email": email}

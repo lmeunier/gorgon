@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // gorgonHandler implements the Handler interface to add the ability to access
@@ -105,22 +106,39 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// fetch values from POST data
+	// fetch `email` from POST data
 	email := ""
 	if vals, ok := r.PostForm["email"]; ok {
 		email = vals[0]
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	if email != session.Values["authenticated_as"] {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	cert_duration := 0
+
+	// fetch `cert_duration` from POST data
+	cert_duration := time.Duration(0)
 	if vals, ok := r.PostForm["cert_duration"]; ok {
-		cert_duration, _ = strconv.Atoi(vals[0])
+		num_seconds, err := strconv.Atoi(vals[0])
+		if err != nil {
+			return err
+		}
+		cert_duration = time.Duration(num_seconds) * time.Second
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
+
+	// fetch `public_key` from POST data
 	var pubkey map[string]string
 	if vals, ok := r.PostForm["public_key"]; ok {
 		json.Unmarshal([]byte(vals[0]), &pubkey)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	// with all theses informations, we can now generate a certificate
