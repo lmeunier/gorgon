@@ -99,13 +99,13 @@
       <button id="btn_cancel" type="button">Cancel</button>
       <button id="btn_submit" type="submit">Authenticate</button>
     </form>
-  {{end}}
 
-  <script type="text/javascript">
-    var btn_cancel = document.getElementById('btn_cancel');
-    btn_cancel.addEventListener("click", function() {
-      navigator.id.raiseAuthenticationFailure('user clicked cancel');
-    });
-  </script>
+    <script type="text/javascript">
+      var btn_cancel = document.getElementById('btn_cancel');
+      btn_cancel.addEventListener("click", function() {
+        navigator.id.raiseAuthenticationFailure('user clicked cancel');
+      });
+    </script>
+  {{end}}
 </body>
 </html>
