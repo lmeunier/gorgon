@@ -114,6 +114,12 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	// Check if the email received form the AJAX request is the same as the
+	// email in the current session. We need to be sure the user is
+	// authenticated with the same email address before creating a certificate.
+	// This is very important to avoid forged requests to obtain a valid
+	// certificate for any email address.
 	if email != session.Values["authenticated_as"] {
 		w.WriteHeader(http.StatusBadRequest)
 		return
