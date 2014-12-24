@@ -154,6 +154,14 @@ Apache
 Build
 -----
 
+Gorgon uses `Gox <https://github.com/mitchellh/gox>`_ to build and cross
+compile the application for multiple platforms. Before trying to build Gorgon,
+make sure you have a working Gox installation.
+
+By default, the ``Makefile`` will build Gorgon for common platforms
+(linux/darwin/*bsd). You can modify the ``OSARCHS`` variable in the
+``Makefile`` to add or remove platforms.
+
 - initialize a workspace directory and set ``GOPATH`` and ``PATH`` accordingly
 
 .. code:: bash
@@ -176,17 +184,19 @@ Build
     make install_deps
     make build
 
-The ``build`` target of the Makefile will create an ``gorgon`` executable file
-in the current folder.
+The ``build`` target of the Makefile will create a ``gorgon`` executable file
+for each platform listed in the ``OSARCHS`` variable in the ``Makefile``,
+these files are created in the ``build/`` folder.
 
-- create a tarball
+- create tarballs
 
 .. code:: bash
 
    make dist
 
-The ``dist`` target of the Makefile will create an tarball archive in the
-``dist/`` folder. You can use this tarball to `install Gorgon <#install>`_.
+The ``dist`` target of the Makefile will create a tarball archive for each
+platform listed in the ``OSARCHS`` variable in the ``Makefile`` in the
+``dist/`` folder. You can use these tarballs to `install Gorgon <#install>`_.
 
 Credits
 -------

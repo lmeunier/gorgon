@@ -1,3 +1,4 @@
 gorgon
 app/bindata.go
 dist/
+build/
