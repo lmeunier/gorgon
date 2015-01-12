@@ -25,4 +25,5 @@ install_deps:
 	go get -u github.com/mitchellh/gox
 	go get -u github.com/mxk/go-imap/imap
 	go get -u github.com/op/go-logging
+	go get -u github.com/stretchr/testify/assert
 	go get -u github.com/vaughan0/go-ini
