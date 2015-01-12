@@ -12,7 +12,7 @@ dist: build $(PROGRAMS)
 
 $(PROGRAMS):
 	@mkdir -p dist
-	tar czf "dist/$(@)-$(VERSION).tar.gz" gorgon.ini.example -C build "$(@)" --owner=0 --group=0
+	tar --transform='flags=r;s|^gorgon_.*|gorgon|' -czf "dist/$(@)-$(VERSION).tar.gz" gorgon.ini.example -C build "$(@)" --owner=0 --group=0
 
 clean:
 	rm -rf app/bindata.go dist/ build/
