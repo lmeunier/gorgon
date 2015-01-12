@@ -7,19 +7,19 @@ import (
 	"time"
 )
 
-// gorgonHandler implements the Handler interface to add the ability to access
+// GorgonHandler implements the Handler interface to add the ability to access
 // our GorgonApp from handlers.
-type gorgonHandler struct {
-	app    *GorgonApp
-	handle func(*GorgonApp, http.ResponseWriter, *http.Request) error
+type GorgonHandler struct {
+	App    *GorgonApp
+	Handle func(*GorgonApp, http.ResponseWriter, *http.Request) error
 }
 
 // ServeHTTP add the ability to access our GorgonApp from handlers.
-func (gh gorgonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	err := gh.handle(gh.app, w, r)
+func (gh GorgonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	err := gh.Handle(gh.App, w, r)
 
 	if err != nil {
-		gh.app.Logger.Error(err.Error())
+		gh.App.Logger.Error(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

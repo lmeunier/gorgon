@@ -123,31 +123,31 @@ func NewApp(config_file string) GorgonApp {
 	// define routes
 	app.Router.Handle(
 		"/.well-known/browserid",
-		gorgonHandler{&app, SupportDocumentHandler}).
+		GorgonHandler{&app, SupportDocumentHandler}).
 		Methods("GET").
 		Name("support_document")
 
 	app.Router.Handle(
 		"/.well-known/browserid/_gorgon/authentication",
-		gorgonHandler{&app, AuthenticationHandler}).
+		GorgonHandler{&app, AuthenticationHandler}).
 		Methods("GET", "POST").
 		Name("authentication")
 
 	app.Router.Handle(
 		"/.well-known/browserid/_gorgon/provisioning",
-		gorgonHandler{&app, ProvisioningHandler}).
+		GorgonHandler{&app, ProvisioningHandler}).
 		Methods("GET").
 		Name("provisioning")
 
 	app.Router.Handle(
 		"/.well-known/browserid/_gorgon/generate_certificate",
-		gorgonHandler{&app, GenerateCertificateHandler}).
+		GorgonHandler{&app, GenerateCertificateHandler}).
 		Methods("POST").
 		Name("generate_certificate")
 
 	app.Router.Handle(
 		"/.well-known/browserid/_gorgon/is_authenticated",
-		gorgonHandler{&app, CheckAuthenticatedHandler}).
+		GorgonHandler{&app, CheckAuthenticatedHandler}).
 		Methods("GET").
 		Name("check_authenticate")
 
