@@ -1,6 +1,9 @@
 Gorgon
 ======
 
+.. image:: https://travis-ci.org/lmeunier/gorgon.svg?branch=master
+    :target: https://travis-ci.org/lmeunier/gorgon
+
 Overview
 --------
 
