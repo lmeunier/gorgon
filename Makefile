@@ -4,11 +4,13 @@ PROGRAMS = $(foreach OSARCH,$(OSARCHS),gorgon_$(subst /,_,$(OSARCH)))
 
 .PHONY: build dist
 
-build:
-	go-bindata -o app/bindata.go -pkg app -prefix "./app/data/" ./app/data/...
+build: app/bindata.go
 	gox -output "build/gorgon_{{.OS}}_{{.Arch}}" -osarch "$(OSARCHS)"
 
 dist: build $(PROGRAMS)
+
+app/bindata.go:
+	go-bindata -o app/bindata.go -pkg app -prefix "./app/data/" ./app/data/...
 
 $(PROGRAMS):
 	@mkdir -p dist
@@ -17,7 +19,7 @@ $(PROGRAMS):
 clean:
 	rm -rf app/bindata.go dist/ build/
 
-test:
+test: app/bindata.go
 	go test -v ./...
 
 install_deps:
