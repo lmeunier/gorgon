@@ -10,8 +10,6 @@ Overview
 Gorgon is a `Persona/BrowserId <https://persona.org/>`_ Identity Provider (IdP)
 written with the `Go Programming Language <http://golang.org/>`_.
 
-Gorgon is yet in active development state. Do **NOT** use it in production.
-
 Install
 -------
 
