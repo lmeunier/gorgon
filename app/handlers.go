@@ -103,6 +103,7 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 	// parse data from the POST body
 	err = r.ParseForm()
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -130,6 +131,7 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 	if vals, ok := r.PostForm["cert_duration"]; ok {
 		num_seconds, err := strconv.Atoi(vals[0])
 		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
 			return err
 		}
 		cert_duration = time.Duration(num_seconds) * time.Second
@@ -141,7 +143,11 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 	// fetch `public_key` from POST data
 	var pubkey map[string]string
 	if vals, ok := r.PostForm["public_key"]; ok {
-		json.Unmarshal([]byte(vals[0]), &pubkey)
+		err := json.Unmarshal([]byte(vals[0]), &pubkey)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return err
+		}
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -155,6 +161,7 @@ func GenerateCertificateHandler(app *GorgonApp, w http.ResponseWriter, r *http.R
 			w.WriteHeader(http.StatusBadRequest)
 			return nil
 		}
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
