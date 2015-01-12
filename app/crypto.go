@@ -130,8 +130,8 @@ func LoadPrivateKey(filename string) (*PrivateKey, error) {
 
 // CreateCertificate returns the string representation of a token signed with
 // the given private_key. The token contains the following claims:
-// - iat:
-// - exp: expiry date of the certificate
+// - iat: timestamp of the generated certificate
+// - exp: expiry timestamp of the certificate
 // - iss: issuer of the certificate (the domain used by the IdP)
 // - public-key: the public key provided by the browser
 // - principal:

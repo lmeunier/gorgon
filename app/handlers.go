@@ -49,7 +49,7 @@ func AuthenticationHandler(app *GorgonApp, w http.ResponseWriter, r *http.Reques
 	session, _ := app.SessionStore.Get(r, "persona-auth")
 
 	if r.Method == "POST" {
-		// the user submitted the HTMl form
+		// the user submitted the HTML form
 		username := r.FormValue("email")
 		password := r.FormValue("password")
 
