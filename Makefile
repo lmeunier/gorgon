@@ -17,6 +17,9 @@ $(PROGRAMS):
 clean:
 	rm -rf app/bindata.go dist/ build/
 
+test:
+	go test -v ./...
+
 install_deps:
 	go get -u github.com/dgrijalva/jwt-go
 	go get -u github.com/gorilla/mux
