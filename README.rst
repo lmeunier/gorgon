@@ -160,7 +160,7 @@ compile the application for multiple platforms. Before trying to build Gorgon,
 make sure you have a working Gox installation.
 
 By default, the ``Makefile`` will build Gorgon for common platforms
-(linux/darwin/*bsd). You can modify the ``OSARCHS`` variable in the
+(linux/darwin/\*bsd). You can modify the ``OSARCHS`` variable in the
 ``Makefile`` to add or remove platforms.
 
 - initialize a workspace directory and set ``GOPATH`` and ``PATH`` accordingly
