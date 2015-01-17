@@ -23,6 +23,7 @@ test: app/bindata.go
 	go test -v -cover ./...
 
 install_deps:
+	go get -u golang.org/x/tools/cmd/cover
 	go get -u github.com/dgrijalva/jwt-go
 	go get -u github.com/gorilla/mux
 	go get -u github.com/gorilla/sessions
