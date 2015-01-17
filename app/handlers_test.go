@@ -43,15 +43,11 @@ func TestSupportDocumentHandler(t *testing.T) {
 	handle.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, http.StatusOK, "SupportDocument should return a 200 HTTP status")
-
-	if contentType := w.Header().Get("content-type"); contentType != "application/json" {
-		t.Error("No 'Content-Type: application/json' header")
-	}
+	assert.Equal(t, "application/json", w.Header().Get("content-type"))
 
 	var supportDocument map[string]interface{}
-	if err := json.Unmarshal(w.Body.Bytes(), &supportDocument); err != nil {
-		t.Error("Error when decoding SupportDocument response from JSON: %s", err.Error())
-	}
+	err := json.Unmarshal(w.Body.Bytes(), &supportDocument)
+	assert.NoError(t, err, "Error when decoding SupportDocument response from JSON")
 
 	assert.Equal(t,
 		supportDocument["authentication"],
