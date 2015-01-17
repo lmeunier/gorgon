@@ -20,7 +20,7 @@ clean:
 	rm -rf app/bindata.go dist/ build/
 
 test: app/bindata.go
-	go test -v ./...
+	go test -v -cover ./...
 
 install_deps:
 	go get -u github.com/dgrijalva/jwt-go
