@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"bytes"
@@ -12,7 +12,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/securecookie"
-	gorgon "github.com/lmeunier/gorgon/app"
 	"github.com/op/go-logging"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,15 +31,15 @@ func GetAuthCookie(username string, codecs ...securecookie.Codec) (*http.Cookie,
 	return &authCookie, nil
 }
 
-func TestSupportDocument(t *testing.T) {
+func TestSupportDocumentHandler(t *testing.T) {
 	// create our app
-	app := gorgon.NewApp("tests/gorgon.ini")
+	app := NewApp("../tests/gorgon.ini")
 	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
 
-	handle := gorgon.GorgonHandler{&app, gorgon.SupportDocumentHandler}
+	handle := GorgonHandler{&app, SupportDocumentHandler}
 	handle.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, http.StatusOK, "SupportDocument should return a 200 HTTP status")
@@ -78,13 +77,13 @@ func TestSupportDocument(t *testing.T) {
 	)
 }
 
-func TestProvisioningPage(t *testing.T) {
+func TestProvisioningPageHandler(t *testing.T) {
 	// create our app
-	app := gorgon.NewApp("tests/gorgon.ini")
+	app := NewApp("../tests/gorgon.ini")
 	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	// the handle that will be tested
-	handle := gorgon.GorgonHandler{&app, gorgon.ProvisioningHandler}
+	handle := GorgonHandler{&app, ProvisioningHandler}
 
 	// cookie used to authenticate our user
 	authCookie, err := GetAuthCookie("user@example.com", app.SessionStore.Codecs...)
@@ -131,13 +130,13 @@ func TestProvisioningPage(t *testing.T) {
 	)
 }
 
-func TestAuthenticationPage(t *testing.T) {
+func TestAuthenticationPageHandler(t *testing.T) {
 	// create our app
-	app := gorgon.NewApp("tests/gorgon.ini")
+	app := NewApp("../tests/gorgon.ini")
 	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	// the handle that will be tested
-	handle := gorgon.GorgonHandler{&app, gorgon.AuthenticationHandler}
+	handle := GorgonHandler{&app, AuthenticationHandler}
 
 	// cookie used to authenticate our user
 	authCookie, err := GetAuthCookie("user@example.com", app.SessionStore.Codecs...)
@@ -237,13 +236,13 @@ func TestAuthenticationPage(t *testing.T) {
 	)
 }
 
-func TestCheckAuthenticated(t *testing.T) {
+func TestCheckAuthenticatedHandler(t *testing.T) {
 	// create our app
-	app := gorgon.NewApp("tests/gorgon.ini")
+	app := NewApp("../tests/gorgon.ini")
 	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	// the handle that will be tested
-	handle := gorgon.GorgonHandler{&app, gorgon.CheckAuthenticatedHandler}
+	handle := GorgonHandler{&app, CheckAuthenticatedHandler}
 
 	// cookie used to authenticate our user
 	authCookie, err := GetAuthCookie("user@example.com", app.SessionStore.Codecs...)
@@ -277,13 +276,13 @@ func TestCheckAuthenticated(t *testing.T) {
 	assert.Equal(t, w.Code, http.StatusForbidden)
 }
 
-func TestGenerateCertificate(t *testing.T) {
+func TestGenerateCertificateHandler(t *testing.T) {
 	// create our app
-	app := gorgon.NewApp("tests/gorgon.ini")
+	app := NewApp("../tests/gorgon.ini")
 	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	// the handle that will be tested
-	handle := gorgon.GorgonHandler{&app, gorgon.GenerateCertificateHandler}
+	handle := GorgonHandler{&app, GenerateCertificateHandler}
 
 	// cookie used to authenticate our user
 	authCookie, err := GetAuthCookie("user@example.com", app.SessionStore.Codecs...)
