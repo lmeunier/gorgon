@@ -1,6 +1,7 @@
 package app
 
 import (
+	"crypto/tls"
 	"errors"
 	"github.com/mxk/go-imap/imap"
 	"reflect"
@@ -94,17 +95,17 @@ func NewTestAuthenticator(app GorgonApp) (Authenticator, error) {
 //
 // [auth:imap]
 // server = imap.example.com
+// verify_cert = true
 //
 type ImapAuthenticator struct {
-	server string // hostname or address of an Imap server
+	Server        string // hostname or address of an Imap server
+	TLSVerifyCert bool   // should verify the certificate presented by the server
 }
 
-// Authenticate uses an Imap server to authenticate users. If the Imap server
-// advertise the STARTTLS capability, the connection switches to TLS. The
-// username (email) and password are passed without modification to the Imap
-// server.
+// Authenticate uses an Imap server to authenticate users. The username (email)
+// and password are passed without modification to the Imap server.
 func (a ImapAuthenticator) Authenticate(username, password string) (err error) {
-	client, err := imap.Dial(a.server)
+	client, err := imap.Dial(a.Server)
 	if client != nil {
 		defer client.Logout(30 * time.Second)
 	}
@@ -112,8 +113,20 @@ func (a ImapAuthenticator) Authenticate(username, password string) (err error) {
 		return
 	}
 
+	tlsConfig := tls.Config{
+		InsecureSkipVerify: a.TLSVerifyCert,
+	}
+
+	return ImapAuthenticate(client, username, password, &tlsConfig)
+}
+
+// ImapAuthenticate tries to authenticate a user. If the IMAP server advertive
+// the STARTTLS capability, the connection switches to TLS and use the provided
+// *tls.Config. If the authentication is successful, returns nil, else returns
+// an error.
+func ImapAuthenticate(client *imap.Client, username, password string, tlsConfig *tls.Config) (err error) {
 	if client.Caps["STARTTLS"] {
-		if _, err = client.StartTLS(nil); err != nil {
+		if _, err = client.StartTLS(tlsConfig); err != nil {
 			return
 		}
 	}
@@ -133,7 +146,14 @@ func NewImapAuthenticator(app GorgonApp) (Authenticator, error) {
 	if !ok {
 		panic("'server' variable missing from 'auth:imap' section")
 	}
+	verifyCert, ok := app.Config.Get("auth:imap", "verify_cert")
+	if !ok {
+		verifyCert = "true"
+	}
 
-	authenticator := ImapAuthenticator{server}
+	authenticator := ImapAuthenticator{
+		Server:        server,
+		TLSVerifyCert: verifyCert == "true",
+	}
 	return authenticator, nil
 }

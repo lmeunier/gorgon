@@ -84,6 +84,7 @@ IMAP server.
 
    [auth:imap]
    server = imap.example.com
+   verify_cert = true
 
 Run
 ---

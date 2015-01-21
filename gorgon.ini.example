@@ -27,3 +27,5 @@ global_password = verysecret
 [auth:imap]
 # Use an IMAP server to authenticate users.
 server = imap.example.com
+# Should Gorgon verify the certificate presented by the server
+verify_cert = true
