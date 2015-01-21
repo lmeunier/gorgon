@@ -58,12 +58,12 @@ func NewAuthenticator(app GorgonApp, name string) (authenticator Authenticator, 
 // global_password = myverysecretpassword
 //
 type TestAuthenticator struct {
-	global_password string // global password to authenticate all users
+	GlobalPassword string // global password to authenticate all users
 }
 
 // Authenticate uses a global password to authenticate all users.
 func (a TestAuthenticator) Authenticate(username, password string) (err error) {
-	if a.global_password != password {
+	if a.GlobalPassword != password {
 		err = errors.New("TestAuthenticator: authentication failed")
 	}
 	return
