@@ -12,7 +12,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/securecookie"
-	"github.com/op/go-logging"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,7 +33,6 @@ func GetAuthCookie(username string, codecs ...securecookie.Codec) (*http.Cookie,
 func TestSupportDocumentHandler(t *testing.T) {
 	// create our app
 	app := NewApp("../tests/gorgon.ini")
-	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
@@ -76,7 +74,6 @@ func TestSupportDocumentHandler(t *testing.T) {
 func TestProvisioningPageHandler(t *testing.T) {
 	// create our app
 	app := NewApp("../tests/gorgon.ini")
-	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	// the handle that will be tested
 	handle := GorgonHandler{&app, ProvisioningHandler}
@@ -129,7 +126,6 @@ func TestProvisioningPageHandler(t *testing.T) {
 func TestAuthenticationPageHandler(t *testing.T) {
 	// create our app
 	app := NewApp("../tests/gorgon.ini")
-	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	// the handle that will be tested
 	handle := GorgonHandler{&app, AuthenticationHandler}
@@ -235,7 +231,6 @@ func TestAuthenticationPageHandler(t *testing.T) {
 func TestCheckAuthenticatedHandler(t *testing.T) {
 	// create our app
 	app := NewApp("../tests/gorgon.ini")
-	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	// the handle that will be tested
 	handle := GorgonHandler{&app, CheckAuthenticatedHandler}
@@ -275,7 +270,6 @@ func TestCheckAuthenticatedHandler(t *testing.T) {
 func TestGenerateCertificateHandler(t *testing.T) {
 	// create our app
 	app := NewApp("../tests/gorgon.ini")
-	logging.SetBackend(logging.NewMemoryBackend(0))
 
 	// the handle that will be tested
 	handle := GorgonHandler{&app, GenerateCertificateHandler}

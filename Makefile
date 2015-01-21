@@ -20,7 +20,7 @@ clean:
 	rm -rf app/bindata.go dist/ build/
 
 test: app/bindata.go
-	go test -v -cover ./...
+	go test -cover ./...
 
 install_deps:
 	go get code.google.com/p/go.tools/cmd/cover || go get -u golang.org/x/tools/cmd/cover
