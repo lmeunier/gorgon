@@ -143,6 +143,9 @@ func TestAuthenticationPageHandler(t *testing.T) {
 
 	// TEST: display form
 	req, _ = http.NewRequest("GET", "", nil)
+	q := req.URL.Query()
+	q.Set("email", "user@example.com")
+	req.URL.RawQuery = q.Encode()
 	w = httptest.NewRecorder()
 	handle.ServeHTTP(w, req)
 	body = w.Body.String()
@@ -151,6 +154,9 @@ func TestAuthenticationPageHandler(t *testing.T) {
 	)
 	assert.Contains(t, body, "<input id=\"input_password\" type=\"password\" name=\"password\"",
 		"The authentication page must display a form with a Password field",
+	)
+	assert.Contains(t, body, "value=\"user@example.com\"",
+		"The authentication page must fill the email field when provided",
 	)
 	assert.NotContains(t, body, "Authentication failed!",
 		"No error message when displaying the form for the first time (on a GET request)",
