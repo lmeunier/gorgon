@@ -353,6 +353,32 @@ func TestGenerateCertificateHandler(t *testing.T) {
 	handle.ServeHTTP(w, req)
 	assert.Equal(t, w.Code, http.StatusBadRequest)
 
+	// TEST: malformed cert duration
+	data = url.Values{}
+	data.Set("email", "user@example.com")
+	data.Add("cert_duration", "this is not an integer")
+	data.Add("public_key", "{\"algorithm\":\"DS\",\"y\":\"foobar\"}")
+	req, _ = http.NewRequest("POST", "", bytes.NewBufferString(data.Encode()))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+	req.AddCookie(authCookie)
+	w = httptest.NewRecorder()
+	handle.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	// TEST: too long cert duration
+	data = url.Values{}
+	data.Set("email", "user@example.com")
+	data.Add("cert_duration", "86401") // 24h + 1s
+	data.Add("public_key", "{\"algorithm\":\"DS\",\"y\":\"foobar\"}")
+	req, _ = http.NewRequest("POST", "", bytes.NewBufferString(data.Encode()))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+	req.AddCookie(authCookie)
+	w = httptest.NewRecorder()
+	handle.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
 	// TEST: check returned certificate
 	data = url.Values{}
 	data.Set("email", "user@example.com")
