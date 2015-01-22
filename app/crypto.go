@@ -1,8 +1,6 @@
 package app
 
 import (
-	"crypto"
-	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
@@ -86,15 +84,6 @@ func LoadPublicKey(filename string) (*PublicKey, error) {
 // PrivateKey represents an RSA private key.
 type PrivateKey struct {
 	*rsa.PrivateKey // anonymous field to the read RSA private key
-}
-
-// Sign returns the signature of the SHA256 hash of the given data.
-func (k *PrivateKey) Sign(data []byte) ([]byte, error) {
-	hashFunc := crypto.SHA256
-	h := hashFunc.New()
-	h.Write(data)
-	digest := h.Sum(nil)
-	return rsa.SignPKCS1v15(rand.Reader, k.PrivateKey, hashFunc, digest)
 }
 
 // LoadPrivateKey returns a PrivateKey created from the content of a PEM
